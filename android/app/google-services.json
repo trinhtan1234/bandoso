@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "55869154761",
+    "firebase_url": "https://bandoso-2986b-default-rtdb.firebaseio.com",
+    "project_id": "bandoso-2986b",
+    "storage_bucket": "bandoso-2986b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:55869154761:android:af4ecf9f6b9ab777abf418",
+        "android_client_info": {
+          "package_name": "com.example.bandoso"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADLK_gdR8tgsqT27GDhqB4cM_rBQ5WeRU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:55869154761:android:90e3eaaf14a96197abf418",
+        "android_client_info": {
+          "package_name": "com.example.bandoso1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADLK_gdR8tgsqT27GDhqB4cM_rBQ5WeRU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:55869154761:android:1d90c6ed00372223abf418",
+        "android_client_info": {
+          "package_name": "com.example.mapbase"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADLK_gdR8tgsqT27GDhqB4cM_rBQ5WeRU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
