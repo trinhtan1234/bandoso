@@ -1,4 +1,5 @@
 import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -128,18 +129,20 @@ class _BanDoSoState extends State<BanDoSo> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Icon(
+                    Icons.location_on,
+                    color: Colors.red,
+                    size: 20.0,
+                  ),
                   Text(
                     tenCau,
                     style: const TextStyle(
                       fontSize: 16.0,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.normal,
                       color: Colors.black,
                     ),
-                  ),
-                  const Icon(
-                    Icons.location_on,
-                    color: Colors.blue,
-                    size: 40.0,
+                    overflow:
+                        TextOverflow.ellipsis, // Ensure text does not overflow
                   ),
                 ],
               ),
