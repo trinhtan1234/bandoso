@@ -52,15 +52,15 @@ class _BanDoSoState extends State<BanDoSo> {
             right: 20,
             child: Material(
               elevation: 4.0,
-              borderRadius: BorderRadius.circular(10.0),
+              borderRadius: BorderRadius.circular(30.0),
               child: TextField(
                 onChanged: _filterMarkers,
                 decoration: InputDecoration(
                   hintText: 'Tìm kiếm cầu...',
-                  filled: true,
-                  fillColor: Colors.white,
+                  // filled: true,
+                  // fillColor: Colors.white,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10.0),
+                    borderRadius: BorderRadius.circular(30.0),
                   ),
                   prefixIcon: const Icon(Icons.search),
                 ),
