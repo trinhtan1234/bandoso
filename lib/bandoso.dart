@@ -16,6 +16,8 @@ class _BanDoSoState extends State<BanDoSo> {
   final DatabaseReference _databaseReference =
       FirebaseDatabase.instance.ref().child('features');
 
+  bool _showLopDuLieu = true;
+
   @override
   void initState() {
     _loadMarkers();
@@ -41,9 +43,11 @@ class _BanDoSoState extends State<BanDoSo> {
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               ),
-              MarkerLayer(
+              if (_showLopDuLieu)
+                MarkerLayer(
                   markers:
-                      _filteredMarkers.isNotEmpty ? _filteredMarkers : _markers)
+                      _filteredMarkers.isNotEmpty ? _filteredMarkers : _markers,
+                )
             ],
           ),
           Positioned(
@@ -57,12 +61,11 @@ class _BanDoSoState extends State<BanDoSo> {
                 onChanged: _filterMarkers,
                 decoration: InputDecoration(
                   hintText: 'Tìm kiếm cầu...',
-                  // filled: true,
-                  // fillColor: Colors.white,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30.0),
                   ),
                   prefixIcon: const Icon(Icons.search),
+                  suffixIcon: const Icon(Icons.close),
                 ),
               ),
             ),
@@ -78,6 +81,41 @@ class _BanDoSoState extends State<BanDoSo> {
                   child: const Icon(Icons.explore),
                 ),
               ],
+            ),
+          ),
+          Positioned(
+            bottom: 200,
+            right: 10,
+            child: Container(
+              // height: 200,
+              // width: 200,
+              color: Colors.cyanAccent,
+              child: Column(
+                children: [
+                  const Text(
+                    'Lớp dữ liệu không gian',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const Divider(),
+                  Row(
+                    children: [
+                      Checkbox(
+                        value: _showLopDuLieu,
+                        onChanged: (bool? value) {
+                          setState(() {
+                            _showLopDuLieu = value ?? true;
+                          });
+                        },
+                      ),
+                      const Text('Cầu')
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
           Positioned(
@@ -117,7 +155,7 @@ class _BanDoSoState extends State<BanDoSo> {
         });
       }
     }).catchError((error) {
-      print('Error loading markers: $error');
+      // print('Error loading markers: $error');
     });
   }
 
