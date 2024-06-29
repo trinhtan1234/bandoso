@@ -13,10 +13,9 @@ class BanDoSo extends StatefulWidget {
 class _BanDoSoState extends State<BanDoSo> {
   final List<Marker> _markers = [];
   List<Marker> _filteredMarkers = [];
-  final DatabaseReference _databaseReference =
+  final DatabaseReference _cau =
       FirebaseDatabase.instance.ref().child('features');
-
-  // final bool _showLopCau = true;
+  int _selectedIndex = -1;
   final List<Map<String, dynamic>> _layers = [
     {
       'name': 'Cầu',
@@ -34,7 +33,38 @@ class _BanDoSoState extends State<BanDoSo> {
       'name': 'Biển báo',
       'isChecked': false,
     },
-    // Thêm các lớp dữ liệu khác nếu cần
+    {
+      'name': 'Biển báo',
+      'isChecked': false,
+    },
+    {
+      'name': 'Biển báo',
+      'isChecked': false,
+    },
+    {
+      'name': 'Biển báo',
+      'isChecked': false,
+    },
+    {
+      'name': 'Biển báo',
+      'isChecked': false,
+    },
+    {
+      'name': 'Biển báo',
+      'isChecked': false,
+    },
+    {
+      'name': 'Biển báo',
+      'isChecked': false,
+    },
+    {
+      'name': 'Biển báo',
+      'isChecked': false,
+    },
+    {
+      'name': 'Biển báo',
+      'isChecked': false,
+    },
   ];
 
   @override
@@ -108,6 +138,7 @@ class _BanDoSoState extends State<BanDoSo> {
                       setState(() {
                         _layers[index]['isChecked'] =
                             !_layers[index]['isChecked'];
+                        _selectedIndex = index; // Update selected index
                         _filterMarkers('');
                       });
                     },
@@ -116,20 +147,42 @@ class _BanDoSoState extends State<BanDoSo> {
                       width: 120,
                       margin: const EdgeInsets.symmetric(horizontal: 5),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: _selectedIndex == index
+                            ? Colors.blue
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(30.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Checkbox(
                             value: _layers[index]['isChecked'],
                             onChanged: (bool? value) {
                               setState(() {
                                 _layers[index]['isChecked'] = value ?? false;
+                                _selectedIndex = index; // Update selected index
+                                _filterMarkers('');
                               });
                             },
                           ),
-                          Text(_layers[index]['name']),
+                          Text(
+                            _layers[index]['name'],
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: _selectedIndex == index
+                                  ? Colors.white
+                                  : Colors.black,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -174,7 +227,7 @@ class _BanDoSoState extends State<BanDoSo> {
   }
 
   Future<void> _loadMarkers() async {
-    _databaseReference.get().then((DataSnapshot snapshot) {
+    _cau.get().then((DataSnapshot snapshot) {
       var data = snapshot.value;
       if (data is List) {
         for (var i = 0; i < data.length; i++) {
