@@ -16,7 +16,26 @@ class _BanDoSoState extends State<BanDoSo> {
   final DatabaseReference _databaseReference =
       FirebaseDatabase.instance.ref().child('features');
 
-  bool _showLopDuLieu = true;
+  // final bool _showLopCau = true;
+  final List<Map<String, dynamic>> _layers = [
+    {
+      'name': 'Cầu',
+      'isChecked': true,
+    },
+    {
+      'name': 'Cột km',
+      'isChecked': false,
+    },
+    {
+      'name': 'Cột h',
+      'isChecked': false,
+    },
+    {
+      'name': 'Biển báo',
+      'isChecked': false,
+    },
+    // Thêm các lớp dữ liệu khác nếu cần
+  ];
 
   @override
   void initState() {
@@ -43,7 +62,7 @@ class _BanDoSoState extends State<BanDoSo> {
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
               ),
-              if (_showLopDuLieu)
+              if (_layers.any((layer) => layer['isChecked']))
                 MarkerLayer(
                   markers:
                       _filteredMarkers.isNotEmpty ? _filteredMarkers : _markers,
@@ -57,16 +76,65 @@ class _BanDoSoState extends State<BanDoSo> {
             child: Material(
               elevation: 4.0,
               borderRadius: BorderRadius.circular(30.0),
-              child: TextField(
-                onChanged: _filterMarkers,
-                decoration: InputDecoration(
-                  hintText: 'Tìm kiếm cầu...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
+              child: Column(
+                children: [
+                  TextField(
+                    onChanged: _filterMarkers,
+                    decoration: InputDecoration(
+                      hintText: 'Tìm kiếm cầu...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: const Icon(Icons.close),
+                    ),
                   ),
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: const Icon(Icons.close),
-                ),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            top: 90,
+            left: 20,
+            right: 20,
+            child: SizedBox(
+              height: 50,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: _layers.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _layers[index]['isChecked'] =
+                            !_layers[index]['isChecked'];
+                        _filterMarkers('');
+                      });
+                    },
+                    child: Container(
+                      height: 50,
+                      width: 120,
+                      margin: const EdgeInsets.symmetric(horizontal: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(30.0),
+                      ),
+                      child: Row(
+                        children: [
+                          Checkbox(
+                            value: _layers[index]['isChecked'],
+                            onChanged: (bool? value) {
+                              setState(() {
+                                _layers[index]['isChecked'] = value ?? false;
+                              });
+                            },
+                          ),
+                          Text(_layers[index]['name']),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
             ),
           ),
@@ -81,41 +149,6 @@ class _BanDoSoState extends State<BanDoSo> {
                   child: const Icon(Icons.explore),
                 ),
               ],
-            ),
-          ),
-          Positioned(
-            bottom: 200,
-            right: 10,
-            child: Container(
-              // height: 200,
-              // width: 200,
-              color: Colors.cyanAccent,
-              child: Column(
-                children: [
-                  const Text(
-                    'Lớp dữ liệu không gian',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const Divider(),
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: _showLopDuLieu,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            _showLopDuLieu = value ?? true;
-                          });
-                        },
-                      ),
-                      const Text('Cầu')
-                    ],
-                  ),
-                ],
-              ),
             ),
           ),
           Positioned(
@@ -186,7 +219,7 @@ class _BanDoSoState extends State<BanDoSo> {
                   chieuDai, coordinates[1], coordinates[0]);
             },
             child: Container(
-              width: 150.0,
+              width: 300.0,
               height: 50.0,
               alignment: Alignment.center,
               child: Column(
