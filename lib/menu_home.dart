@@ -1,3 +1,4 @@
+import 'package:bandoso/taikhoan/dangnhaptaikhoan.dart';
 import 'package:flutter/material.dart';
 
 import 'bandoso/bandoso.dart';
@@ -25,10 +26,7 @@ class _MenuKhungAppState extends State<MenuKhungApp> {
     _pages = [
       const BanDoSo(),
       const Text('Đóng góp'),
-      const Text('Tài khoản'),
-      // const KhamPha(),
-      // const DongGop(),
-      // const TaiKhoan(),
+      const LoginScreen(),
     ];
   }
 
@@ -42,7 +40,8 @@ class _MenuKhungAppState extends State<MenuKhungApp> {
         onTap: _navigateBottomBar,
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.pin), label: 'Khám phá'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.pin_drop), label: 'Khám phá'),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Đóng góp'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Tài khoản'),
         ],
