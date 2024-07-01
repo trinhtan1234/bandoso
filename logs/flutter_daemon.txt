@@ -1,0 +1,28 @@
+!! ⚠️ PLEASE REVIEW THIS LOG FOR SENSITIVE INFORMATION BEFORE SHARING ⚠️ !!
+Dart Code extension: 3.90.0
+Flutter extension: 3.91.20240529 (not activated)
+
+App: Visual Studio Code
+App Host: desktop
+Version: win 1.90.2
+
+
+Logging Categories:
+    FlutterDaemon
+
+Mon Jul 01 2024 [12:24:33 GMT+0700 (Indochina Time)] Log file started
+[12:24:33 PM] [FlutterDaemon] [Info] Spawning C:\src\flutter\bin\flutter.bat with args ["daemon"]
+[12:24:33 PM] [FlutterDaemon] [Info] ..  in C:\src\flutter
+[12:24:33 PM] [FlutterDaemon] [Info] ..  with {"toolEnv":{"FLUTTER_HOST":"VSCode","PUB_ENVIRONMENT":"vscode.dart-code","FLUTTER_ROOT":"C:\\src\\flutter"}}
+[12:24:33 PM] [FlutterDaemon] [Info]     PID: 4036
+[12:24:33 PM] [FlutterDaemon] [Info] <== [{"event":"daemon.connected","params":{"version":"0.6.1","pid":17904}}]
+[12:24:33 PM] [FlutterDaemon] [Info] ==> [{"id":"1","method":"device.enable"}]
+[12:24:33 PM] [FlutterDaemon] [Info] ==> [{"id":"2","method":"emulator.getEmulators"}]
+[12:24:33 PM] [FlutterDaemon] [Info] ==> [{"id":"3","method":"daemon.getSupportedPlatforms","params":{"projectRoot":"D:\\Flutter\\bandoso"}}]
+[12:24:34 PM] [FlutterDaemon] [Info] <== [{"event":"daemon.logMessage","params":{"level":"status","message":"Starting device daemon..."}}]
+[12:24:34 PM] [FlutterDaemon] [Info] <== [{"id":"1"}]
+[12:24:34 PM] [FlutterDaemon] [Info] <== [{"id":"3","result":{"platforms":["web","android","ios","linux","macos","windows"],"platformTypes":{"web":{"isSupported":true},"android":{"isSupported":true},"ios":{"isSupported":true},"linux":{"isSupported":true},"macos":{"isSupported":true},"windows":{"isSupported":true},"fuchsia":{"isSupported":false,"reasons":[{"reasonText":"the Fuchsia feature is not enabled","fixText":"Run \"flutter config --enable-fuchsia\"","fixCode":"config"},{"reasonText":"the Fuchsia platform is not enabled for this project","fixText":"Run \"flutter create --platforms=fuchsia .\" in your application directory","fixCode":"create"}]},"custom":{"isSupported":false,"reasons":[{"reasonText":"the custom devices feature is not enabled","fixText":"Run \"flutter config --enable-custom-devices\"","fixCode":"config"}]},"windowsPreview":{"isSupported":false,"reasons":[{"reasonText":"the Preview Device feature is not enabled","fixText":"Run \"flutter config --enable-flutter-preview","fixCode":"config"}]}}}}]
+[12:24:34 PM] [FlutterDaemon] [Info] <== [{"event":"device.added","params":{"id":"windows","name":"Windows","platform":"windows-x64","emulator":false,"category":"desktop","platformType":"windows","ephemeral":false,"emulatorId":null,"sdk":"Microsoft Windows [Version 10.0.22631.3737]","isConnected":true,"connectionInterface":"attached","capabilities":{"hotReload":true,"hotRestart":true,"screenshot":false,"fastStart":false,"flutterExit":true,"hardwareRendering":true,"startPaused":true}}}]
+[12:24:34 PM] [FlutterDaemon] [Info] <== [{"id":"2","result":[{"id":"INFO    | Storing crashdata in: C:\\Users\\tantv\\AppData\\Local\\Temp\\\\AndroidEmulator\\emu-crash-34.2.15.db, detection is enabled for process: 27148","name":"INFO    | Storing crashdata in: C:\\Users\\tantv\\AppData\\Local\\Temp\\\\AndroidEmulator\\emu-crash-34.2.15.db, detection is enabled for process: 27148","category":"mobile","platformType":"android"},{"id":"Medium_Phone_API_35","name":"Medium Phone API 35","category":"mobile","platformType":"android"},{"id":"Pixel_3_XL_API_35","name":"Pixel 3 XL API 35","category":"mobile","platformType":"android"},{"id":"Pixel_5_API_34","name":"Pixel 5 API 34","category":"mobile","platformType":"android"},{"id":"Pixel_7a_API_34","name":"Pixel 7a API 34","category":"mobile","platformType":"android"}]}]
+[12:24:34 PM] [FlutterDaemon] [Info] <== [{"event":"device.added","params":{"id":"chrome","name":"Chrome","platform":"web-javascript","emulator":false,"category":"web","platformType":"web","ephemeral":false,"emulatorId":null,"sdk":"Google Chrome 126.0.6478.127","isConnected":true,"connectionInterface":"attached","capabilities":{"hotReload":true,"hotRestart":true,"screenshot":false,"fastStart":false,"flutterExit":false,"hardwareRendering":true,"startPaused":true}}}]
+[12:24:34 PM] [FlutterDaemon] [Info] <== [{"event":"device.added","params":{"id":"edge","name":"Edge","platform":"web-javascript","emulator":false,"category":"web","platformType":"web","ephemeral":false,"emulatorId":null,"sdk":"Microsoft Edge 126.0.2592.81","isConnected":true,"connectionInterface":"attached","capabilities":{"hotReload":true,"hotRestart":true,"screenshot":false,"fastStart":false,"flutterExit":false,"hardwareRendering":true,"startPaused":true}}}]
