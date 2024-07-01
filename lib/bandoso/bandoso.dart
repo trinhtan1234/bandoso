@@ -2,6 +2,8 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:geolocator/geolocator.dart';
 
 class BanDoSo extends StatefulWidget {
   const BanDoSo({super.key});
@@ -11,65 +13,36 @@ class BanDoSo extends StatefulWidget {
 }
 
 class _BanDoSoState extends State<BanDoSo> {
+  LatLng? center;
+  Position? _currentPosition;
+  late Position position;
+  String long = "";
+  String lat = "";
+
   final List<Marker> _markers = [];
   List<Marker> _filteredMarkers = [];
   final DatabaseReference _cau =
       FirebaseDatabase.instance.ref().child('features');
   int _selectedIndex = -1;
   final List<Map<String, dynamic>> _layers = [
-    {
-      'name': 'Cầu',
-      'isChecked': true,
-    },
-    {
-      'name': 'Cột km',
-      'isChecked': false,
-    },
-    {
-      'name': 'Cột h',
-      'isChecked': false,
-    },
-    {
-      'name': 'Biển báo',
-      'isChecked': false,
-    },
-    {
-      'name': 'Biển báo',
-      'isChecked': false,
-    },
-    {
-      'name': 'Biển báo',
-      'isChecked': false,
-    },
-    {
-      'name': 'Biển báo',
-      'isChecked': false,
-    },
-    {
-      'name': 'Biển báo',
-      'isChecked': false,
-    },
-    {
-      'name': 'Biển báo',
-      'isChecked': false,
-    },
-    {
-      'name': 'Biển báo',
-      'isChecked': false,
-    },
-    {
-      'name': 'Biển báo',
-      'isChecked': false,
-    },
-    {
-      'name': 'Biển báo',
-      'isChecked': false,
-    },
+    {'name': 'Cầu', 'isChecked': true},
+    {'name': 'Cột km', 'isChecked': false},
+    {'name': 'Cột h', 'isChecked': false},
+    {'name': 'Biển báo', 'isChecked': false},
+    {'name': 'Biển báo', 'isChecked': false},
+    {'name': 'Biển báo', 'isChecked': false},
+    {'name': 'Biển báo', 'isChecked': false},
+    {'name': 'Biển báo', 'isChecked': false},
+    {'name': 'Biển báo', 'isChecked': false},
+    {'name': 'Biển báo', 'isChecked': false},
+    {'name': 'Biển báo', 'isChecked': false},
+    {'name': 'Biển báo', 'isChecked': false},
   ];
 
   @override
   void initState() {
     _loadMarkers();
+    _requestLocationPermission();
     super.initState();
   }
 
@@ -546,5 +519,77 @@ class _BanDoSoState extends State<BanDoSo> {
         );
       },
     );
+  }
+
+  // Location GPS
+
+  Future<void> _requestLocationPermission() async {
+    final PermissionStatus status = await Permission.location.request();
+    if (status == PermissionStatus.denied) {
+      _showLocationPermissionDeniedDialog();
+    } else if (status == PermissionStatus.permanentlyDenied) {
+      _showLocationPermissionPermanentlyDeniedDialog();
+    } else {
+      _getCurrentLocation();
+    }
+  }
+
+  Future<void> _showLocationPermissionDeniedDialog() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Quyền truy cập vị trí bị từ chối'),
+          content: const Text(
+              'Vui lòng cho phép ứng dụng truy cập vị trí trong cài đặt.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Đóng'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showLocationPermissionPermanentlyDeniedDialog() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Quyền truy cập vị trí bị từ chối vĩnh viễn'),
+          content: const Text(
+              'Vui lòng mở cài đặt ứng dụng và cấp quyền truy cập vị trí.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Đóng'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _getCurrentLocation() async {
+    final LocationPermission permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      _showLocationPermissionDeniedDialog();
+    } else {
+      _currentPosition = (await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      )) as Position?;
+      if (_currentPosition != null) {
+        setState(() {
+          center =
+              LatLng(_currentPosition!.latitude, _currentPosition!.longitude);
+        });
+      }
+    }
   }
 }
