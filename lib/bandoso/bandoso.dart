@@ -1,12 +1,11 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:geolocator/geolocator.dart';
 
-import 'add_bridge.dart';
-import 'edit_bridge.dart';
 
 class BanDoSo extends StatefulWidget {
   const BanDoSo({super.key});
@@ -46,7 +45,6 @@ class _BanDoSoState extends State<BanDoSo> {
   void initState() {
     _loadMarkers();
     _requestLocationPermission();
-    _cau.onChildAdded.listen(_onBridgeAdded);
     super.initState();
   }
 
@@ -62,12 +60,14 @@ class _BanDoSoState extends State<BanDoSo> {
         children: [
           FlutterMap(
             options: const MapOptions(
-              initialCenter: LatLng(18.74055282323523, 105.48521581831663),
-              initialZoom: 10,
+              initialCenter: LatLng(19.78207088297697, 105.00311687432979),
+              initialZoom: 9,
+              
             ),
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                tileProvider: CancellableNetworkTileProvider(),
               ),
               if (_layers.any((layer) => layer['isChecked']))
                 MarkerLayer(
@@ -179,29 +179,6 @@ class _BanDoSoState extends State<BanDoSo> {
                   child: const Icon(Icons.explore),
                 ),
               ],
-            ),
-          ),
-          Positioned(
-            bottom: 20,
-            left: 0,
-            right: 0,
-            child: Align(
-              alignment: Alignment.center,
-              child: FloatingActionButton(
-                backgroundColor: Colors.deepPurple,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const AddBridgeScreen()),
-                  );
-                },
-                child: const Icon(
-                  Icons.add,
-                  color: Colors.white,
-                  size: 30,
-                ),
-              ),
             ),
           ),
         ],
@@ -355,23 +332,19 @@ class _BanDoSoState extends State<BanDoSo> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const EditBridgeScreen(bridgeKey: '', bridgeData: {},)),
-                );
 
-                // Navigator.of(context).pop();
-                // _hienThiThongTin(
-                //   tenCau: tenCau,
-                //   tenSong: tenSong,
-                //   lyTrinh: lyTrinh,
-                //   lotuyen: loTuyen,
-                //   diaDanh: diaDanh,
-                //   chieuDai: chieuDai,
-                //   latitude: latitude,
-                //   longitude: longitude,
-                // );
+
+                Navigator.of(context).pop();
+                _hienThiThongTin(
+                  tenCau: tenCau,
+                  tenSong: tenSong,
+                  lyTrinh: lyTrinh,
+                  lotuyen: loTuyen,
+                  diaDanh: diaDanh,
+                  chieuDai: chieuDai,
+                  latitude: latitude,
+                  longitude: longitude,
+                );
               },
               child: const Text('Sửa'),
             ),
@@ -508,7 +481,7 @@ class _BanDoSoState extends State<BanDoSo> {
                             children: [
                               const Icon(
                                 Icons.location_on,
-                                color: Colors.red,
+                                color: Colors.deepPurple,
                                 size: 20.0,
                               ),
                               Text(
@@ -610,18 +583,18 @@ class _BanDoSoState extends State<BanDoSo> {
   }
 
 //Thêm cầu
-  void _onBridgeAdded(DatabaseEvent event) {
-    final bridge = event.snapshot.value as Map<dynamic, dynamic>;
-    final coordinates = bridge['geometry']['coordinates'];
-    final properties = bridge['properties'];
+  // void _onBridgeAdded(DatabaseEvent event) {
+  //   final bridge = event.snapshot.value as Map<dynamic, dynamic>;
+  //   final coordinates = bridge['geometry']['coordinates'];
+  //   final properties = bridge['properties'];
 
-    setState(() {
-      _markers.add(Marker(
-        point: LatLng(coordinates[1], coordinates[0]),
-        child: const Icon(Icons.location_on, color: Colors.red),
-        width: 80,
-        height: 80,
-      ));
-    });
-  }
+  //   setState(() {
+  //     _markers.add(Marker(
+  //       point: LatLng(coordinates[1], coordinates[0]),
+  //       child: const Icon(Icons.location_on, color: Colors.blue),
+  //       width: 80,
+  //       height: 80,
+  //     ));
+  //   });
+  // }
 }

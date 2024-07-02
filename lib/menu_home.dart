@@ -1,3 +1,4 @@
+import 'package:bandoso/bandoso/add_bridge.dart';
 import 'package:bandoso/taikhoan/dangnhaptaikhoan.dart';
 import 'package:flutter/material.dart';
 
@@ -25,7 +26,7 @@ class _MenuKhungAppState extends State<MenuKhungApp> {
 
     _pages = [
       const BanDoSo(),
-      const Text('Đóng góp'),
+      const AddBridgeScreen(),
       const LoginScreen(),
     ];
   }

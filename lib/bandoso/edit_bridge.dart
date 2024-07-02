@@ -2,11 +2,11 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
 class EditBridgeScreen extends StatefulWidget {
-  final String bridgeKey;
-  final Map<String, dynamic> bridgeData;
+  final String fid;
+  final Map<String, dynamic> cau;
 
   const EditBridgeScreen(
-      {required this.bridgeKey, required this.bridgeData, super.key});
+      {required this.fid, required this.cau, super.key});
 
   @override
   State<EditBridgeScreen> createState() => _EditBridgeScreenState();
@@ -15,6 +15,7 @@ class EditBridgeScreen extends StatefulWidget {
 class _EditBridgeScreenState extends State<EditBridgeScreen> {
   final DatabaseReference _cau =
       FirebaseDatabase.instance.ref().child('features');
+       late TextEditingController fid;
   late TextEditingController tenCauController;
   late TextEditingController tenSongController;
   late TextEditingController lyTrinhController;
@@ -27,21 +28,21 @@ class _EditBridgeScreenState extends State<EditBridgeScreen> {
   @override
   void initState() {
     super.initState();
-    tenCauController = TextEditingController(text: widget.bridgeData['tenCau']);
+    tenCauController = TextEditingController(text: widget.cau['tenCau']);
     tenSongController =
-        TextEditingController(text: widget.bridgeData['tenSong']);
+        TextEditingController(text: widget.cau['tenSong']);
     lyTrinhController =
-        TextEditingController(text: widget.bridgeData['lyTrinh']);
+        TextEditingController(text: widget.cau['lyTrinh']);
     loTuyenController =
-        TextEditingController(text: widget.bridgeData['loTuyen']);
+        TextEditingController(text: widget.cau['loTuyen']);
     diaDanhController =
-        TextEditingController(text: widget.bridgeData['diaDanh']);
+        TextEditingController(text: widget.cau['diaDanh']);
     chieuDaiController =
-        TextEditingController(text: widget.bridgeData['chieuDai']);
+        TextEditingController(text: widget.cau['chieuDai']);
     viDoController =
-        TextEditingController(text: widget.bridgeData['viDo'].toString());
+        TextEditingController(text: widget.cau['viDo'].toString());
     kinhDoController =
-        TextEditingController(text: widget.bridgeData['kinhDo'].toString());
+        TextEditingController(text: widget.cau['kinhDo'].toString());
   }
 
   @override
@@ -110,7 +111,7 @@ class _EditBridgeScreenState extends State<EditBridgeScreen> {
       'viDo': double.parse(viDoController.text),
       'kinhDo': double.parse(kinhDoController.text),
     };
-    _cau.child(widget.bridgeKey).update(updatedBridge).then((_) {
+    _cau.child(widget.fid).update(updatedBridge).then((_) {
       Navigator.of(context).pop();
     });
   }

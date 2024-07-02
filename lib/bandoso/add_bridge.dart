@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:firebase_database/firebase_database.dart';
 
@@ -13,7 +11,6 @@ class AddBridgeScreen extends StatefulWidget {
 
 class _AddBridgeScreenState extends State<AddBridgeScreen> {
   // ignore: non_constant_identifier_names
-
   final _FidController = TextEditingController();
   final chieuDaiController = TextEditingController();
   final _diaDanhController = TextEditingController();
@@ -25,39 +22,55 @@ class _AddBridgeScreenState extends State<AddBridgeScreen> {
   final _longitudeController = TextEditingController();
   final _latitudeController = TextEditingController();
 
-  final DatabaseReference _databaseRef =
-      FirebaseDatabase.instance.ref().child('features');
+  final DatabaseReference _databaseRef = FirebaseDatabase.instance.ref().child('features');
 
   void _saveBridge() {
-    final newBridge = {
-      'geometry': {
-        'coordinates': [
-          double.parse(_longitudeController.text),
-          double.parse(_latitudeController.text)
-        ]
-      },
-      'id': {int.parse(_FidController.text)},
-      'properties': {
-        'FID': _FidController.text,
-        'chieulo_tuyen': chieuDaiController.text,
-        'diaDanh': _diaDanhController.text,
-        'lo_tuyen': _lotuyenController.text,
-        'lyTrinh': _lyTrinhController.text,
-        'maDoiTuong': _maDoiTuongController.text,
-        'tenCau': _tenCauController.text,
-        'tenSong': _tenSongController.text,
-      },
-      'type': {'Cau'}
-    };
+    if (_validateInputs()) {
+      final newBridge = {
+        'geometry': {
+          'coordinates': [
+            double.parse(_longitudeController.text),
+            double.parse(_latitudeController.text)
+          ],
+          'type': 'Point',
+        },
+        'id': int.parse(_FidController.text),
+        'properties': {
+          'FID': int.parse(_FidController.text),
+          'chieuDai': chieuDaiController.text,
+          'diaDanh': _diaDanhController.text,
+          'lo_tuyen': _lotuyenController.text,
+          'lyTrinh': _lyTrinhController.text,
+          'maDoiTuong': int.parse(_maDoiTuongController.text),
+          'tenCau': _tenCauController.text,
+          'tenSong': _tenSongController.text,
+        },
+        'type': 'Feature',
+      };
 
-    _databaseRef.push().set(newBridge).then((_) {
+      _databaseRef.push().set(newBridge).then((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Bridge added successfully!')));
+        _clearForm();
+      }).catchError((error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to add bridge: $error')));
+      });
+    }
+  }
+
+  bool _validateInputs() {
+    try {
+      int.parse(_FidController.text);
+      double.parse(_longitudeController.text);
+      double.parse(_latitudeController.text);
+      int.parse(_maDoiTuongController.text);
+      return true;
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Bridge added successfully!')));
-      _clearForm();
-    }).catchError((error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add bridge: $error')));
-    });
+          const SnackBar(content: Text('Please enter valid numbers in the FID, Longitude, Latitude, and Ma Doi Tuong fields.')));
+      return false;
+    }
   }
 
   void _clearForm() {
@@ -87,10 +100,12 @@ class _AddBridgeScreenState extends State<AddBridgeScreen> {
               TextField(
                 controller: _FidController,
                 decoration: const InputDecoration(labelText: 'FID'),
+                keyboardType: TextInputType.number,
               ),
               TextField(
                 controller: chieuDaiController,
                 decoration: const InputDecoration(labelText: 'Chiều dài'),
+                keyboardType: TextInputType.number,
               ),
               TextField(
                 controller: _diaDanhController,
@@ -107,6 +122,7 @@ class _AddBridgeScreenState extends State<AddBridgeScreen> {
               TextField(
                 controller: _maDoiTuongController,
                 decoration: const InputDecoration(labelText: 'Mã đối tượng'),
+                keyboardType: TextInputType.number,
               ),
               TextField(
                 controller: _tenCauController,
