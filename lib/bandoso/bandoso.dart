@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_cancellable_tile_provider/flutter_map_cancellable_tile_provider.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:geolocator/geolocator.dart';
-
 
 class BanDoSo extends StatefulWidget {
   const BanDoSo({super.key});
@@ -15,17 +12,9 @@ class BanDoSo extends StatefulWidget {
 }
 
 class _BanDoSoState extends State<BanDoSo> {
-  LatLng? center;
-  Position? _currentPosition;
-  late Position position;
-  String long = "";
-  String lat = "";
-
   final List<Marker> _markers = [];
   List<Marker> _filteredMarkers = [];
-  final DatabaseReference _cau =
-      FirebaseDatabase.instance.ref().child('features');
-  int _selectedIndex = -1;
+  DatabaseReference _cau = FirebaseDatabase.instance.ref().child('features'); // Initialize with default value
   final List<Map<String, dynamic>> _layers = [
     {'name': 'Cầu', 'isChecked': true},
     {'name': 'Cột km', 'isChecked': false},
@@ -40,11 +29,11 @@ class _BanDoSoState extends State<BanDoSo> {
     {'name': 'Biển báo', 'isChecked': false},
     {'name': 'Biển báo', 'isChecked': false},
   ];
+  int _selectedIndex = -1;
 
   @override
   void initState() {
     _loadMarkers();
-    _requestLocationPermission();
     super.initState();
   }
 
@@ -60,9 +49,8 @@ class _BanDoSoState extends State<BanDoSo> {
         children: [
           FlutterMap(
             options: const MapOptions(
-              initialCenter: LatLng(19.78207088297697, 105.00311687432979),
-              initialZoom: 9,
-              
+              initialCenter: LatLng(18.74055282323523, 105.48521581831663),
+              initialZoom: 10,
             ),
             children: [
               TileLayer(
@@ -71,8 +59,7 @@ class _BanDoSoState extends State<BanDoSo> {
               ),
               if (_layers.any((layer) => layer['isChecked']))
                 MarkerLayer(
-                  markers:
-                      _filteredMarkers.isNotEmpty ? _filteredMarkers : _markers,
+                  markers: _filteredMarkers.isNotEmpty ? _filteredMarkers : _markers,
                 )
             ],
           ),
@@ -83,20 +70,21 @@ class _BanDoSoState extends State<BanDoSo> {
             child: Material(
               elevation: 4.0,
               borderRadius: BorderRadius.circular(30.0),
-              child: Column(
-                children: [
-                  TextField(
-                    onChanged: _filterMarkers,
-                    decoration: InputDecoration(
-                      hintText: 'Tìm kiếm cầu...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30.0),
-                      ),
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: const Icon(Icons.close),
-                    ),
+              child: TextField(
+                onChanged: _filterMarkers,
+                decoration: InputDecoration(
+                  hintText: 'Tìm kiếm cầu...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
                   ),
-                ],
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () {
+                      _filterMarkers('');
+                    },
+                  ),
+                ),
               ),
             ),
           ),
@@ -113,9 +101,10 @@ class _BanDoSoState extends State<BanDoSo> {
                   return GestureDetector(
                     onTap: () {
                       setState(() {
-                        _layers[index]['isChecked'] =
-                            !_layers[index]['isChecked'];
-                        _selectedIndex = index; // Update selected index
+                        _selectedIndex = index;
+                        // Update _cau based on _selectedIndex
+                        _cau = _getDatabaseReference(index);
+                        _loadMarkers();
                         _filterMarkers('');
                       });
                     },
@@ -124,9 +113,7 @@ class _BanDoSoState extends State<BanDoSo> {
                       width: 120,
                       margin: const EdgeInsets.symmetric(horizontal: 5),
                       decoration: BoxDecoration(
-                        color: _selectedIndex == index
-                            ? Colors.blue
-                            : Colors.white,
+                        color: _selectedIndex == index ? Colors.blue : Colors.white,
                         borderRadius: BorderRadius.circular(30.0),
                         boxShadow: [
                           BoxShadow(
@@ -134,33 +121,26 @@ class _BanDoSoState extends State<BanDoSo> {
                             spreadRadius: 2,
                             blurRadius: 5,
                             offset: const Offset(0, 3),
-                          ),
+                          )
                         ],
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Checkbox(
-                            value: _layers[index]['isChecked'],
-                            onChanged: (bool? value) {
-                              setState(() {
-                                _layers[index]['isChecked'] = value ?? false;
-                                _selectedIndex = index; // Update selected index
-                                _filterMarkers('');
-                              });
-                            },
-                          ),
-                          Text(
-                            _layers[index]['name'],
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: _selectedIndex == index
-                                  ? Colors.white
-                                  : Colors.black,
+                      child: Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(
+                              Icons.room_outlined,
                             ),
-                          ),
-                        ],
+                            Text(
+                              _layers[index]['name'],
+                              style: TextStyle(
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                                color: _selectedIndex == index ? Colors.white : Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   );
@@ -171,14 +151,9 @@ class _BanDoSoState extends State<BanDoSo> {
           Positioned(
             bottom: 20,
             right: 20,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                FloatingActionButton(
-                  onPressed: () {},
-                  child: const Icon(Icons.explore),
-                ),
-              ],
+            child: FloatingActionButton(
+              onPressed: () {},
+              child: const Icon(Icons.explore),
             ),
           ),
         ],
@@ -187,8 +162,10 @@ class _BanDoSoState extends State<BanDoSo> {
   }
 
   Future<void> _loadMarkers() async {
-    _cau.get().then((DataSnapshot snapshot) {
+    try {
+      final snapshot = await _cau.get();
       var data = snapshot.value;
+      _markers.clear(); // Clear existing markers before loading new ones
       if (data is List) {
         for (var i = 0; i < data.length; i++) {
           _addMarker(data[i], i);
@@ -200,9 +177,9 @@ class _BanDoSoState extends State<BanDoSo> {
           index++;
         });
       }
-    }).catchError((error) {
-      // print('Error loading markers: $error');
-    });
+    } catch (error) {
+      print('Error loading markers: $error');
+    }
   }
 
   void _addMarker(dynamic value, int index) {
@@ -214,11 +191,6 @@ class _BanDoSoState extends State<BanDoSo> {
     final properties = value['properties'] ?? {};
     final LatLng position = LatLng(coordinates[1], coordinates[0]);
     final String tenCau = properties['tenCau'] ?? 'Unknown';
-    final String tenSong = properties['tenSong'] ?? 'Unknown';
-    final String lyTrinh = properties['lyTrinh'] ?? 'Unknown';
-    final String loTuyen = properties['lo_tuyen'] ?? 'Unknown';
-    final String diaDanh = properties['diaDanh'] ?? 'Unknown';
-    final String chieuDai = properties['chieuDai'] ?? 'Unknown';
 
     setState(() {
       _markers.add(
@@ -226,10 +198,9 @@ class _BanDoSoState extends State<BanDoSo> {
           width: 150.0,
           height: 50.0,
           point: position,
-          child: GestureDetector(
+          child:  GestureDetector(
             onTap: () {
-              _showBridgeInfoDialog(tenCau, tenSong, lyTrinh, loTuyen, diaDanh,
-                  chieuDai, coordinates[1], coordinates[0]);
+              _showBridgeInfoDialog(properties); // Pass properties to dialog
             },
             child: Container(
               width: 300.0,
@@ -250,8 +221,7 @@ class _BanDoSoState extends State<BanDoSo> {
                       fontWeight: FontWeight.normal,
                       color: Colors.black,
                     ),
-                    overflow:
-                        TextOverflow.ellipsis, // Ensure text does not overflow
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -262,64 +232,56 @@ class _BanDoSoState extends State<BanDoSo> {
     });
   }
 
-  void _filterMarkers(String query) {
-    setState(() {
-      _filteredMarkers = _markers.where((marker) {
-        final child = marker.child;
-        if (child is GestureDetector) {
-          final container = child.child;
-          if (container is Container) {
-            final column = container.child;
-            if (column is Column) {
-              if (column.children.length > 1) {
-                final textWidget = column.children[1];
-                if (textWidget is Text && textWidget.data != null) {
-                  return textWidget.data!
+ void _filterMarkers(String query) {
+  setState(() {
+    _filteredMarkers = _markers.where((marker) {
+      final child = marker.child;
+      if (child is GestureDetector) {
+        final container = child.child;
+        if (container is Container) {
+          final column = container.child;
+          if (column is Column && column.children.length > 1) {
+            final textWidget = column.children[1];
+            if (textWidget is Text && textWidget.data != null) {
+              // Check if marker should be visible based on filter and layer selection
+              final bool shouldShow = _layers[_selectedIndex]['isChecked'] &&
+                  textWidget.data!
                       .toLowerCase()
                       .contains(query.toLowerCase());
-                }
-              }
+              return shouldShow;
             }
           }
         }
-        return false;
-      }).toList();
-    });
-  }
+      }
+      return false;
+    }).toList();
+  });
+}
 
-  void _showBridgeInfoDialog(
-      String tenCau,
-      String tenSong,
-      String lyTrinh,
-      String loTuyen,
-      String diaDanh,
-      String chieuDai,
-      double latitude,
-      double longitude) {
+
+  void _showBridgeInfoDialog(Map<String, dynamic> properties) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            tenCau,
+            properties['tenCau'] ?? 'Unknown',
             style: const TextStyle(
               fontSize: 20,
             ),
           ),
-          content: Container(
-            constraints: BoxConstraints(
-                maxHeight: MediaQuery.of(context).size.height * 0.5),
+          content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text('Tên sông: $tenSong'),
-                Text('Lý trình: $lyTrinh'),
-                Text('Lộ tuyến: $loTuyen'),
-                Text('Địa danh: $diaDanh'),
-                Text('Chiều dài: $chieuDai'),
-                Text('Vĩ độ: $latitude'),
-                Text('Kinh độ: $longitude'),
+                Text('Tên sông: ${properties['tenSong'] ?? 'Unknown'}'),
+                Text('Lý trình: ${properties['lyTrinh'] ?? 'Unknown'}'),
+                Text('Lộ tuyến: ${properties['lo_tuyen'] ?? 'Unknown'}'),
+                Text('Địa danh: ${properties['diaDanh'] ?? 'Unknown'}'),
+                Text('Chiều dài: ${properties['chieuDai'] ?? 'Unknown'}'),
+                Text('Vĩ độ: ${properties['coordinates']?[1] ?? 'Unknown'}'),
+                Text('Kinh độ: ${properties['coordinates']?[0] ?? 'Unknown'}'),
               ],
             ),
           ),
@@ -332,19 +294,8 @@ class _BanDoSoState extends State<BanDoSo> {
             ),
             TextButton(
               onPressed: () {
-
-
                 Navigator.of(context).pop();
-                _hienThiThongTin(
-                  tenCau: tenCau,
-                  tenSong: tenSong,
-                  lyTrinh: lyTrinh,
-                  lotuyen: loTuyen,
-                  diaDanh: diaDanh,
-                  chieuDai: chieuDai,
-                  latitude: latitude,
-                  longitude: longitude,
-                );
+                _editBridgeInfo(properties);
               },
               child: const Text('Sửa'),
             ),
@@ -354,247 +305,19 @@ class _BanDoSoState extends State<BanDoSo> {
     );
   }
 
-  void _hienThiThongTin({
-    String? tenCau,
-    String? tenSong,
-    String? lyTrinh,
-    String? lotuyen,
-    String? diaDanh,
-    String? chieuDai,
-    double? latitude,
-    double? longitude,
-  }) {
-    final TextEditingController tenCauController =
-        TextEditingController(text: tenCau);
-    final TextEditingController tenSongController =
-        TextEditingController(text: tenSong);
-    final TextEditingController lyTrinhController =
-        TextEditingController(text: lyTrinh);
-    final TextEditingController loTuyenController =
-        TextEditingController(text: lotuyen);
-    final TextEditingController diaDanhController =
-        TextEditingController(text: diaDanh);
-    final TextEditingController chieuDaiController =
-        TextEditingController(text: chieuDai);
-    final TextEditingController viDoController =
-        TextEditingController(text: latitude?.toString());
-    final TextEditingController kinhDoController =
-        TextEditingController(text: longitude?.toString());
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Thông tin cầu'),
-          content: SingleChildScrollView(
-            child: Column(
-              children: [
-                TextField(
-                  controller: tenCauController,
-                  decoration: const InputDecoration(labelText: 'Tên cầu'),
-                ),
-                TextField(
-                  controller: tenSongController,
-                  decoration: const InputDecoration(labelText: 'Tên sông'),
-                ),
-                TextField(
-                  controller: lyTrinhController,
-                  decoration: const InputDecoration(labelText: 'Lý trình'),
-                ),
-                TextField(
-                  controller: loTuyenController,
-                  decoration: const InputDecoration(labelText: 'Lộ tuyến'),
-                ),
-                TextField(
-                  controller: diaDanhController,
-                  decoration: const InputDecoration(labelText: 'Địa danh'),
-                ),
-                TextField(
-                  controller: chieuDaiController,
-                  decoration: const InputDecoration(labelText: 'Chiều dài'),
-                ),
-                TextField(
-                  controller: viDoController,
-                  decoration: const InputDecoration(labelText: 'Vĩ độ'),
-                ),
-                TextField(
-                  controller: kinhDoController,
-                  decoration: const InputDecoration(labelText: 'Kinh độ'),
-                ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Đóng'),
-            ),
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  final index = _markers.indexWhere((marker) {
-                    final child = marker.child;
-                    if (child is GestureDetector) {
-                      final container = child.child;
-                      if (container is Container) {
-                        final column = container.child;
-                        if (column is Column) {
-                          if (column.children.length > 1) {
-                            final textWidget = column.children[1];
-                            if (textWidget is Text &&
-                                textWidget.data == tenCau) {
-                              return true;
-                            }
-                          }
-                        }
-                      }
-                    }
-                    return false;
-                  });
-                  if (index != -1) {
-                    final marker = _markers[index];
-                    _markers[index] = Marker(
-                      width: 150.0,
-                      height: 50.0,
-                      point: marker.point,
-                      child: GestureDetector(
-                        onTap: () {
-                          _showBridgeInfoDialog(
-                            tenCauController.text,
-                            tenSongController.text,
-                            lyTrinhController.text,
-                            loTuyenController.text,
-                            diaDanhController.text,
-                            chieuDaiController.text,
-                            double.parse(viDoController.text),
-                            double.parse(kinhDoController.text),
-                          );
-                        },
-                        child: Container(
-                          width: 150.0,
-                          height: 50.0,
-                          alignment: Alignment.center,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.location_on,
-                                color: Colors.deepPurple,
-                                size: 20.0,
-                              ),
-                              Text(
-                                tenCauController.text,
-                                style: const TextStyle(
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.normal,
-                                  color: Colors.black,
-                                ),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  }
-                });
-                Navigator.of(context).pop();
-              },
-              child: const Text('Lưu'),
-            ),
-          ],
-        );
-      },
-    );
+  void _editBridgeInfo(Map<String, dynamic> properties) {
+    // Implement editing functionality here
   }
 
-  // Location GPS
-
-  Future<void> _requestLocationPermission() async {
-    final PermissionStatus status = await Permission.location.request();
-    if (status == PermissionStatus.denied) {
-      _showLocationPermissionDeniedDialog();
-    } else if (status == PermissionStatus.permanentlyDenied) {
-      _showLocationPermissionPermanentlyDeniedDialog();
-    } else {
-      _getCurrentLocation();
+  DatabaseReference _getDatabaseReference(int index) {
+    switch (index) {
+      case 0:
+        return FirebaseDatabase.instance.ref().child('features');
+      case 1:
+        // Return appropriate DatabaseReference for other layers
+        return FirebaseDatabase.instance.ref().child('other_layer');
+      default:
+        return FirebaseDatabase.instance.ref().child('default_layer');
     }
   }
-
-  Future<void> _showLocationPermissionDeniedDialog() async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Quyền truy cập vị trí bị từ chối'),
-          content: const Text(
-              'Vui lòng cho phép ứng dụng truy cập vị trí trong cài đặt.'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Đóng'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _showLocationPermissionPermanentlyDeniedDialog() async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Quyền truy cập vị trí bị từ chối vĩnh viễn'),
-          content: const Text(
-              'Vui lòng mở cài đặt ứng dụng và cấp quyền truy cập vị trí.'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Đóng'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _getCurrentLocation() async {
-    final LocationPermission permission = await Geolocator.requestPermission();
-    if (permission == LocationPermission.denied) {
-      _showLocationPermissionDeniedDialog();
-    } else {
-      _currentPosition = (await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      )) as Position?;
-      if (_currentPosition != null) {
-        setState(() {
-          center =
-              LatLng(_currentPosition!.latitude, _currentPosition!.longitude);
-        });
-      }
-    }
-  }
-
-//Thêm cầu
-  // void _onBridgeAdded(DatabaseEvent event) {
-  //   final bridge = event.snapshot.value as Map<dynamic, dynamic>;
-  //   final coordinates = bridge['geometry']['coordinates'];
-  //   final properties = bridge['properties'];
-
-  //   setState(() {
-  //     _markers.add(Marker(
-  //       point: LatLng(coordinates[1], coordinates[0]),
-  //       child: const Icon(Icons.location_on, color: Colors.blue),
-  //       width: 80,
-  //       height: 80,
-  //     ));
-  //   });
-  // }
 }
