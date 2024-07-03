@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-
 import '../menu_home.dart';
 
 class ThongTinTaiKhoan extends StatefulWidget {
@@ -46,14 +45,6 @@ class _ThongTinTaiKhoanState extends State<ThongTinTaiKhoan> {
     }
     super.initState();
   }
-
-  // @override
-  // void dispose() {
-  //   _nameController.dispose();
-  //   _emailController.dispose();
-  //   imageUrlsController.dispose();
-  //   super.dispose();
-  // }
 
   Future<void> _dangXuat() async {
     try {

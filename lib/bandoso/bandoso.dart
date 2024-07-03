@@ -1,3 +1,4 @@
+import 'package:bandoso/bandoso/edit_bridge.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -13,10 +14,11 @@ class BanDoSo extends StatefulWidget {
 
 class _BanDoSoState extends State<BanDoSo> {
   final List<Marker> _markers = [];
-  List<Marker> _filteredMarkers = [];
-  DatabaseReference _cau = FirebaseDatabase.instance.ref().child('features'); // Initialize with default value
+  List<Marker> _filteredMarkers = []; // Initialize as empty list
+  DatabaseReference _currentLayerRef =
+      FirebaseDatabase.instance.ref().child('features');
   final List<Map<String, dynamic>> _layers = [
-    {'name': 'Cầu', 'isChecked': true},
+    {'name': 'Cầu', 'isChecked': false},
     {'name': 'Cột km', 'isChecked': false},
     {'name': 'Cột h', 'isChecked': false},
     {'name': 'Biển báo', 'isChecked': false},
@@ -29,17 +31,15 @@ class _BanDoSoState extends State<BanDoSo> {
     {'name': 'Biển báo', 'isChecked': false},
     {'name': 'Biển báo', 'isChecked': false},
   ];
-  int _selectedIndex = -1;
+  late int _selectedIndex = -1;
+  bool _shouldShowMarkers() {
+    return _selectedIndex != -1 && _layers[_selectedIndex]['isChecked'];
+  }
 
   @override
   void initState() {
     _loadMarkers();
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
@@ -57,9 +57,10 @@ class _BanDoSoState extends State<BanDoSo> {
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 tileProvider: CancellableNetworkTileProvider(),
               ),
-              if (_layers.any((layer) => layer['isChecked']))
+              if (_shouldShowMarkers()) // Kiểm tra điều kiện trước khi hiển thị MarkerLayer
                 MarkerLayer(
-                  markers: _filteredMarkers.isNotEmpty ? _filteredMarkers : _markers,
+                  markers:
+                      _filteredMarkers.isNotEmpty ? _filteredMarkers : _markers,
                 )
             ],
           ),
@@ -100,20 +101,26 @@ class _BanDoSoState extends State<BanDoSo> {
                 itemBuilder: (context, index) {
                   return GestureDetector(
                     onTap: () {
-                      setState(() {
-                        _selectedIndex = index;
-                        // Update _cau based on _selectedIndex
-                        _cau = _getDatabaseReference(index);
-                        _loadMarkers();
-                        _filterMarkers('');
-                      });
+                      _toggleLayer(index);
+                      // setState(() {
+                      //   _layers[index]['isChecked'] =
+                      //       !_layers[index]['isChecked'];
+                      //   _selectedIndex = index;
+                      //   // Get the appropriate DatabaseReference
+                      //   _currentLayerRef = _getDatabaseReference(index);
+                      //   // Reload markers based on the updated state
+                      //   _loadMarkers();
+                      //   _filterMarkers('');
+                      // });
                     },
                     child: Container(
                       height: 50,
                       width: 120,
                       margin: const EdgeInsets.symmetric(horizontal: 5),
                       decoration: BoxDecoration(
-                        color: _selectedIndex == index ? Colors.blue : Colors.white,
+                        color: _selectedIndex == index
+                            ? Colors.blue
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(30.0),
                         boxShadow: [
                           BoxShadow(
@@ -136,7 +143,9 @@ class _BanDoSoState extends State<BanDoSo> {
                               style: TextStyle(
                                 fontSize: 15,
                                 fontWeight: FontWeight.bold,
-                                color: _selectedIndex == index ? Colors.white : Colors.black,
+                                color: _selectedIndex == index
+                                    ? Colors.white
+                                    : Colors.black,
                               ),
                             ),
                           ],
@@ -163,7 +172,7 @@ class _BanDoSoState extends State<BanDoSo> {
 
   Future<void> _loadMarkers() async {
     try {
-      final snapshot = await _cau.get();
+      final snapshot = await _currentLayerRef.get();
       var data = snapshot.value;
       _markers.clear(); // Clear existing markers before loading new ones
       if (data is List) {
@@ -177,6 +186,10 @@ class _BanDoSoState extends State<BanDoSo> {
           index++;
         });
       }
+      // Initially, do not show any markers until selected
+      setState(() {
+        _filteredMarkers.clear();
+      });
     } catch (error) {
       print('Error loading markers: $error');
     }
@@ -198,7 +211,7 @@ class _BanDoSoState extends State<BanDoSo> {
           width: 150.0,
           height: 50.0,
           point: position,
-          child:  GestureDetector(
+          child: GestureDetector(
             onTap: () {
               _showBridgeInfoDialog(properties); // Pass properties to dialog
             },
@@ -232,32 +245,30 @@ class _BanDoSoState extends State<BanDoSo> {
     });
   }
 
- void _filterMarkers(String query) {
-  setState(() {
-    _filteredMarkers = _markers.where((marker) {
-      final child = marker.child;
-      if (child is GestureDetector) {
-        final container = child.child;
-        if (container is Container) {
-          final column = container.child;
-          if (column is Column && column.children.length > 1) {
-            final textWidget = column.children[1];
-            if (textWidget is Text && textWidget.data != null) {
-              // Check if marker should be visible based on filter and layer selection
-              final bool shouldShow = _layers[_selectedIndex]['isChecked'] &&
-                  textWidget.data!
-                      .toLowerCase()
-                      .contains(query.toLowerCase());
-              return shouldShow;
+  void _filterMarkers(String query) {
+    setState(() {
+      _filteredMarkers = _markers.where((marker) {
+        final child = marker.child;
+        if (child is GestureDetector) {
+          final container = child.child;
+          if (container is Container) {
+            final column = container.child;
+            if (column is Column && column.children.length > 1) {
+              final textWidget = column.children[1];
+              if (textWidget is Text && textWidget.data != null) {
+                final bool shouldShow = _layers[_selectedIndex]['isChecked'] &&
+                    textWidget.data!
+                        .toLowerCase()
+                        .contains(query.toLowerCase());
+                return shouldShow;
+              }
             }
           }
         }
-      }
-      return false;
-    }).toList();
-  });
-}
-
+        return false;
+      }).toList();
+    });
+  }
 
   void _showBridgeInfoDialog(Map<String, dynamic> properties) {
     showDialog(
@@ -294,8 +305,15 @@ class _BanDoSoState extends State<BanDoSo> {
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                _editBridgeInfo(properties);
+                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => EditBridgeScreen(
+                      fid: properties['fid'],
+                      cau: properties,
+                    ),
+                  ),
+                );
               },
               child: const Text('Sửa'),
             ),
@@ -308,16 +326,38 @@ class _BanDoSoState extends State<BanDoSo> {
   void _editBridgeInfo(Map<String, dynamic> properties) {
     // Implement editing functionality here
   }
+  //chọn các lớp
+  void _toggleLayer(int index) {
+    setState(() {
+      if (_selectedIndex == index) {
+        return; // Do nothing if clicking on the same layer button
+      }
+      if (_selectedIndex != -1) {
+        _layers[_selectedIndex]['isChecked'] = false;
+      }
+      _selectedIndex = index;
+      _layers[index]['isChecked'] = true;
+      _currentLayerRef = _getDatabaseReference(index);
+      _loadMarkers();
+      _filterMarkers('');
+    });
+  }
 
   DatabaseReference _getDatabaseReference(int index) {
-    switch (index) {
-      case 0:
-        return FirebaseDatabase.instance.ref().child('features');
-      case 1:
-        // Return appropriate DatabaseReference for other layers
-        return FirebaseDatabase.instance.ref().child('other_layer');
-      default:
-        return FirebaseDatabase.instance.ref().child('default_layer');
+    if (index >= 0 && index < _layers.length) {
+      if (_layers[index]['isChecked']) {
+        switch (index) {
+          case 0:
+            return FirebaseDatabase.instance.ref().child('features');
+          case 1:
+            return FirebaseDatabase.instance.ref().child('other_layer');
+          // Add cases for other layers as needed
+          default:
+            return FirebaseDatabase.instance.ref().child('default_layer');
+        }
+      }
     }
+    // Return a default DatabaseReference if the layer is not checked or index is out of bounds
+    return FirebaseDatabase.instance.ref().child('default_layer');
   }
 }

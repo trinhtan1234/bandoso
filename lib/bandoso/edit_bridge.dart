@@ -5,8 +5,7 @@ class EditBridgeScreen extends StatefulWidget {
   final String fid;
   final Map<String, dynamic> cau;
 
-  const EditBridgeScreen(
-      {required this.fid, required this.cau, super.key});
+  const EditBridgeScreen({required this.fid, required this.cau, super.key});
 
   @override
   State<EditBridgeScreen> createState() => _EditBridgeScreenState();
@@ -15,7 +14,6 @@ class EditBridgeScreen extends StatefulWidget {
 class _EditBridgeScreenState extends State<EditBridgeScreen> {
   final DatabaseReference _cau =
       FirebaseDatabase.instance.ref().child('features');
-       late TextEditingController fid;
   late TextEditingController tenCauController;
   late TextEditingController tenSongController;
   late TextEditingController lyTrinhController;
@@ -29,18 +27,12 @@ class _EditBridgeScreenState extends State<EditBridgeScreen> {
   void initState() {
     super.initState();
     tenCauController = TextEditingController(text: widget.cau['tenCau']);
-    tenSongController =
-        TextEditingController(text: widget.cau['tenSong']);
-    lyTrinhController =
-        TextEditingController(text: widget.cau['lyTrinh']);
-    loTuyenController =
-        TextEditingController(text: widget.cau['loTuyen']);
-    diaDanhController =
-        TextEditingController(text: widget.cau['diaDanh']);
-    chieuDaiController =
-        TextEditingController(text: widget.cau['chieuDai']);
-    viDoController =
-        TextEditingController(text: widget.cau['viDo'].toString());
+    tenSongController = TextEditingController(text: widget.cau['tenSong']);
+    lyTrinhController = TextEditingController(text: widget.cau['lyTrinh']);
+    loTuyenController = TextEditingController(text: widget.cau['loTuyen']);
+    diaDanhController = TextEditingController(text: widget.cau['diaDanh']);
+    chieuDaiController = TextEditingController(text: widget.cau['chieuDai']);
+    viDoController = TextEditingController(text: widget.cau['viDo'].toString());
     kinhDoController =
         TextEditingController(text: widget.cau['kinhDo'].toString());
   }
@@ -53,48 +45,50 @@ class _EditBridgeScreenState extends State<EditBridgeScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: <Widget>[
-            TextField(
-              controller: tenCauController,
-              decoration: const InputDecoration(labelText: 'Tên cầu'),
-            ),
-            TextField(
-              controller: tenSongController,
-              decoration: const InputDecoration(labelText: 'Tên sông'),
-            ),
-            TextField(
-              controller: lyTrinhController,
-              decoration: const InputDecoration(labelText: 'Lý trình'),
-            ),
-            TextField(
-              controller: loTuyenController,
-              decoration: const InputDecoration(labelText: 'Lộ tuyến'),
-            ),
-            TextField(
-              controller: diaDanhController,
-              decoration: const InputDecoration(labelText: 'Địa danh'),
-            ),
-            TextField(
-              controller: chieuDaiController,
-              decoration: const InputDecoration(labelText: 'Chiều dài'),
-            ),
-            TextField(
-              controller: viDoController,
-              decoration: const InputDecoration(labelText: 'Vĩ độ'),
-              keyboardType: TextInputType.number,
-            ),
-            TextField(
-              controller: kinhDoController,
-              decoration: const InputDecoration(labelText: 'Kinh độ'),
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _updateBridge,
-              child: const Text('Lưu'),
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              TextField(
+                controller: tenCauController,
+                decoration: const InputDecoration(labelText: 'Tên cầu'),
+              ),
+              TextField(
+                controller: tenSongController,
+                decoration: const InputDecoration(labelText: 'Tên sông'),
+              ),
+              TextField(
+                controller: lyTrinhController,
+                decoration: const InputDecoration(labelText: 'Lý trình'),
+              ),
+              TextField(
+                controller: loTuyenController,
+                decoration: const InputDecoration(labelText: 'Lộ tuyến'),
+              ),
+              TextField(
+                controller: diaDanhController,
+                decoration: const InputDecoration(labelText: 'Địa danh'),
+              ),
+              TextField(
+                controller: chieuDaiController,
+                decoration: const InputDecoration(labelText: 'Chiều dài'),
+              ),
+              TextField(
+                controller: viDoController,
+                decoration: const InputDecoration(labelText: 'Vĩ độ'),
+                keyboardType: TextInputType.number,
+              ),
+              TextField(
+                controller: kinhDoController,
+                decoration: const InputDecoration(labelText: 'Kinh độ'),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: _updateBridge,
+                child: const Text('Lưu'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -113,6 +107,8 @@ class _EditBridgeScreenState extends State<EditBridgeScreen> {
     };
     _cau.child(widget.fid).update(updatedBridge).then((_) {
       Navigator.of(context).pop();
+    }).catchError((error) {
+      print('Error updating data: $error');
     });
   }
 }
