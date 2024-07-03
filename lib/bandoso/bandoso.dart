@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bandoso/bandoso/edit_bridge.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +16,7 @@ class BanDoSo extends StatefulWidget {
 
 class _BanDoSoState extends State<BanDoSo> {
   final List<Marker> _markers = [];
-  List<Marker> _filteredMarkers = []; // Initialize as empty list
+  List<Marker> _filteredMarkers = [];
   DatabaseReference _currentLayerRef =
       FirebaseDatabase.instance.ref().child('features');
   final List<Map<String, dynamic>> _layers = [
@@ -22,16 +24,9 @@ class _BanDoSoState extends State<BanDoSo> {
     {'name': 'Cột km', 'isChecked': false},
     {'name': 'Cột h', 'isChecked': false},
     {'name': 'Biển báo', 'isChecked': false},
-    {'name': 'Biển báo', 'isChecked': false},
-    {'name': 'Biển báo', 'isChecked': false},
-    {'name': 'Biển báo', 'isChecked': false},
-    {'name': 'Biển báo', 'isChecked': false},
-    {'name': 'Biển báo', 'isChecked': false},
-    {'name': 'Biển báo', 'isChecked': false},
-    {'name': 'Biển báo', 'isChecked': false},
-    {'name': 'Biển báo', 'isChecked': false},
   ];
-  late int _selectedIndex = -1;
+  int _selectedIndex = -1;
+
   bool _shouldShowMarkers() {
     return _selectedIndex != -1 && _layers[_selectedIndex]['isChecked'];
   }
@@ -45,127 +40,117 @@ class _BanDoSoState extends State<BanDoSo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        children: [
-          FlutterMap(
-            options: const MapOptions(
-              initialCenter: LatLng(18.74055282323523, 105.48521581831663),
-              initialZoom: 10,
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                tileProvider: CancellableNetworkTileProvider(),
+      body: GestureDetector(
+        child: Stack(
+          children: [
+            FlutterMap(
+              options: const MapOptions(
+                initialCenter: LatLng(18.74055282323523, 105.48521581831663),
+                initialZoom: 10,
               ),
-              if (_shouldShowMarkers()) // Kiểm tra điều kiện trước khi hiển thị MarkerLayer
-                MarkerLayer(
-                  markers:
-                      _filteredMarkers.isNotEmpty ? _filteredMarkers : _markers,
-                )
-            ],
-          ),
-          Positioned(
-            top: 20,
-            left: 20,
-            right: 20,
-            child: Material(
-              elevation: 4.0,
-              borderRadius: BorderRadius.circular(30.0),
-              child: TextField(
-                onChanged: _filterMarkers,
-                decoration: InputDecoration(
-                  hintText: 'Tìm kiếm cầu...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  tileProvider: CancellableNetworkTileProvider(),
+                ),
+                if (_shouldShowMarkers())
+                  MarkerLayer(
+                    markers:
+                        _filteredMarkers.isNotEmpty ? _filteredMarkers : _markers,
                   ),
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      _filterMarkers('');
-                    },
+              ],
+            ),
+            Positioned(
+              top: 20,
+              left: 20,
+              right: 20,
+              child: Material(
+                elevation: 4.0,
+                borderRadius: BorderRadius.circular(30.0),
+                child: TextField(
+                  onChanged: _filterMarkers,
+                  decoration: InputDecoration(
+                    hintText: 'Tìm kiếm cầu...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30.0),
+                    ),
+                    prefixIcon: const Icon(Icons.search),
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () {
+                        _filterMarkers('');
+                      },
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Positioned(
-            top: 90,
-            left: 20,
-            right: 20,
-            child: SizedBox(
-              height: 50,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: _layers.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      _toggleLayer(index);
-                      // setState(() {
-                      //   _layers[index]['isChecked'] =
-                      //       !_layers[index]['isChecked'];
-                      //   _selectedIndex = index;
-                      //   // Get the appropriate DatabaseReference
-                      //   _currentLayerRef = _getDatabaseReference(index);
-                      //   // Reload markers based on the updated state
-                      //   _loadMarkers();
-                      //   _filterMarkers('');
-                      // });
-                    },
-                    child: Container(
-                      height: 50,
-                      width: 120,
-                      margin: const EdgeInsets.symmetric(horizontal: 5),
-                      decoration: BoxDecoration(
-                        color: _selectedIndex == index
-                            ? Colors.blue
-                            : Colors.white,
-                        borderRadius: BorderRadius.circular(30.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: const Offset(0, 3),
-                          )
-                        ],
-                      ),
-                      child: Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.room_outlined,
-                            ),
-                            Text(
-                              _layers[index]['name'],
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                                color: _selectedIndex == index
-                                    ? Colors.white
-                                    : Colors.black,
-                              ),
+            Positioned(
+              top: 90,
+              left: 20,
+              right: 20,
+              child: SizedBox(
+                height: 50,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: _layers.length,
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        _toggleLayer(index);
+                      },
+                      child: Container(
+                        height: 50,
+                        width: 120,
+                        margin: const EdgeInsets.symmetric(horizontal: 5),
+                        decoration: BoxDecoration(
+                          color: _selectedIndex == index
+                              ? Colors.blue
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(30.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: const Offset(0, 3),
                             ),
                           ],
                         ),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.room_outlined),
+                              Text(
+                                _layers[index]['name'],
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold,
+                                  color: _selectedIndex == index
+                                      ? Colors.white
+                                      : Colors.black,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
             ),
-          ),
-          Positioned(
-            bottom: 20,
-            right: 20,
-            child: FloatingActionButton(
-              onPressed: () {},
-              child: const Icon(Icons.explore),
+            Positioned(
+              bottom: 20,
+              right: 20,
+              child: FloatingActionButton(
+                onPressed: () {},
+                child: const Icon(Icons.explore),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -174,7 +159,7 @@ class _BanDoSoState extends State<BanDoSo> {
     try {
       final snapshot = await _currentLayerRef.get();
       var data = snapshot.value;
-      _markers.clear(); // Clear existing markers before loading new ones
+      _markers.clear();
       if (data is List) {
         for (var i = 0; i < data.length; i++) {
           _addMarker(data[i], i);
@@ -186,7 +171,6 @@ class _BanDoSoState extends State<BanDoSo> {
           index++;
         });
       }
-      // Initially, do not show any markers until selected
       setState(() {
         _filteredMarkers.clear();
       });
@@ -196,66 +180,71 @@ class _BanDoSoState extends State<BanDoSo> {
   }
 
   void _addMarker(dynamic value, int index) {
-    if (value == null) return;
-    final geometry = value['geometry'];
-    if (geometry == null) return;
-    final coordinates = geometry['coordinates'];
-    if (coordinates == null) return;
-    final properties = value['properties'] ?? {};
-    final LatLng position = LatLng(coordinates[1], coordinates[0]);
-    final String tenCau = properties['tenCau'] ?? 'Unknown';
+  if (value == null) return;
 
-    setState(() {
-      _markers.add(
-        Marker(
-          width: 150.0,
-          height: 50.0,
-          point: position,
-          child: GestureDetector(
-            onTap: () {
-              _showBridgeInfoDialog(properties); // Pass properties to dialog
-            },
-            child: Container(
-              width: 300.0,
-              height: 50.0,
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.location_on,
-                    color: Colors.red,
-                    size: 20.0,
+  // Sử dụng json.decode và json.encode để chuyển đổi kiểu dữ liệu
+  final Map<String, dynamic> valueMap = json.decode(json.encode(value));
+
+  final geometry = valueMap['geometry'];
+  if (geometry == null) return;
+  final coordinates = geometry['coordinates'];
+  if (coordinates == null) return;
+  final properties = valueMap['properties'] ?? {};
+  final LatLng position = LatLng(coordinates[1], coordinates[0]);
+  final String tenCau = properties['tenCau'] ?? 'Unknown';
+
+  setState(() {
+    _markers.add(
+      Marker(
+        width: 150.0,
+        height: 50.0,
+        point: position,
+        child: GestureDetector(
+          onTap: () {
+            _showBridgeInfoDialog(properties);
+          },
+          child: Container(
+            width: 300.0,
+            height: 50.0,
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.location_on,
+                  color: Colors.red,
+                  size: 20.0,
+                ),
+                Text(
+                  tenCau,
+                  style: const TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.normal,
+                    color: Colors.black,
                   ),
-                  Text(
-                    tenCau,
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                      fontWeight: FontWeight.normal,
-                      color: Colors.black,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
         ),
-      );
-    });
-  }
-
-  void _filterMarkers(String query) {
-    setState(() {
-      _filteredMarkers = _markers.where((marker) {
-        final child = marker.child;
-        if (child is GestureDetector) {
-          final container = child.child;
-          if (container is Container) {
-            final column = container.child;
-            if (column is Column && column.children.length > 1) {
-              final textWidget = column.children[1];
-              if (textWidget is Text && textWidget.data != null) {
+      ),
+    );
+  });
+}
+void _filterMarkers(String query) {
+  setState(() {
+    _filteredMarkers = _markers.where((marker) {
+      final child = marker.child;
+      if (child is GestureDetector) {
+        final container = child.child;
+        if (container is Container) {
+          final column = container.child;
+          if (column is Column && column.children.length > 1) {
+            final textWidget = column.children[1];
+            if (textWidget is Text && textWidget.data != null) {
+              final properties = _getPropertiesFromMarker(marker);
+              if (properties != null) {
                 final bool shouldShow = _layers[_selectedIndex]['isChecked'] &&
                     textWidget.data!
                         .toLowerCase()
@@ -265,68 +254,92 @@ class _BanDoSoState extends State<BanDoSo> {
             }
           }
         }
-        return false;
-      }).toList();
-    });
-  }
+      }
+      return false;
+    }).toList();
+  });
+}
 
-  void _showBridgeInfoDialog(Map<String, dynamic> properties) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(
-            properties['tenCau'] ?? 'Unknown',
-            style: const TextStyle(
-              fontSize: 20,
-            ),
+Map<String, dynamic>? _getPropertiesFromMarker(Marker marker) {
+  final child = marker.child;
+  if (child is GestureDetector) {
+    final container = child.child;
+    if (container is Container) {
+      final column = container.child;
+      if (column is Column && column.children.length > 1) {
+        final textWidget = column.children[1];
+        if (textWidget is Text && textWidget.data != null) {
+          // Trả về thuộc tính từ marker nếu hợp lệ
+          return json.decode(json.encode(textWidget.data));
+        }
+      }
+    }
+  }
+  return null;
+}
+
+
+  
+
+ void _showBridgeInfoDialog(Map<String, dynamic> properties) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      final geometry = properties['geometry'];
+      final coordinates = geometry != null ? geometry['coordinates'] : [null, null];
+
+      return AlertDialog(
+        title: Text(
+          properties['tenCau'] ?? 'Unknown',
+          style: const TextStyle(
+            fontSize: 20,
           ),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text('Tên sông: ${properties['tenSong'] ?? 'Unknown'}'),
-                Text('Lý trình: ${properties['lyTrinh'] ?? 'Unknown'}'),
-                Text('Lộ tuyến: ${properties['lo_tuyen'] ?? 'Unknown'}'),
-                Text('Địa danh: ${properties['diaDanh'] ?? 'Unknown'}'),
-                Text('Chiều dài: ${properties['chieuDai'] ?? 'Unknown'}'),
-                Text('Vĩ độ: ${properties['coordinates']?[1] ?? 'Unknown'}'),
-                Text('Kinh độ: ${properties['coordinates']?[0] ?? 'Unknown'}'),
-              ],
-            ),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text('Lý trình: ${properties['lyTrinh'] ?? 'Unknown'}'),
+              Text('Lộ tuyến: ${properties['lo_tuyen'] ?? 'Unknown'}'),
+              Text('Địa danh: ${properties['diaDanh'] ?? 'Unknown'}'),
+              Text('Chiều dài: ${properties['chieuDai'] ?? 'Unknown'}'),
+              Text('Vĩ độ: ${coordinates != null ? coordinates[1] ?? 'Unknown' : 'Unknown'}'),
+              Text('Kinh độ: ${coordinates != null ? coordinates[0] ?? 'Unknown' : 'Unknown'}'),
+            ],
           ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Đóng'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (context) => EditBridgeScreen(
-                      fid: properties['fid'],
-                      cau: properties,
-                    ),
+        ),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('Đóng'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => EditBridgeScreen(
+                    fid: properties['fid'],
+                    cau: properties,
                   ),
-                );
-              },
-              child: const Text('Sửa'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+                ),
+              );
+            },
+            child: const Text('Sửa'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
-  void _editBridgeInfo(Map<String, dynamic> properties) {
-    // Implement editing functionality here
-  }
-  //chọn các lớp
+
+
+
+
   void _toggleLayer(int index) {
     setState(() {
       if (_selectedIndex == index) {
@@ -357,7 +370,6 @@ class _BanDoSoState extends State<BanDoSo> {
         }
       }
     }
-    // Return a default DatabaseReference if the layer is not checked or index is out of bounds
     return FirebaseDatabase.instance.ref().child('default_layer');
   }
 }

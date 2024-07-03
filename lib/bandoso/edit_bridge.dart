@@ -87,6 +87,10 @@ class _EditBridgeScreenState extends State<EditBridgeScreen> {
                 onPressed: _updateBridge,
                 child: const Text('Lưu'),
               ),
+                ElevatedButton(
+                onPressed: _deleteBridge,
+                child: const Text('Xóa'),
+              ),
             ],
           ),
         ),
@@ -109,6 +113,11 @@ class _EditBridgeScreenState extends State<EditBridgeScreen> {
       Navigator.of(context).pop();
     }).catchError((error) {
       print('Error updating data: $error');
+    });
+  }
+  void _deleteBridge() {
+    _cau.child(widget.fid).remove().then((_) {
+      Navigator.of(context).pop();
     });
   }
 }
