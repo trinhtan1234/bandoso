@@ -55,8 +55,9 @@ class _BanDoSoState extends State<BanDoSo> {
                 ),
                 if (_shouldShowMarkers())
                   MarkerLayer(
-                    markers:
-                        _filteredMarkers.isNotEmpty ? _filteredMarkers : _markers,
+                    markers: _filteredMarkers.isNotEmpty
+                        ? _filteredMarkers
+                        : _markers,
                   ),
               ],
             ),
@@ -180,165 +181,163 @@ class _BanDoSoState extends State<BanDoSo> {
   }
 
   void _addMarker(dynamic value, int index) {
-  if (value == null) return;
+    if (value == null) return;
 
-  // Sử dụng json.decode và json.encode để chuyển đổi kiểu dữ liệu
-  final Map<String, dynamic> valueMap = json.decode(json.encode(value));
+    // Sử dụng json.decode và json.encode để chuyển đổi kiểu dữ liệu
+    final Map<String, dynamic> valueMap = json.decode(json.encode(value));
 
-  final geometry = valueMap['geometry'];
-  if (geometry == null) return;
-  final coordinates = geometry['coordinates'];
-  if (coordinates == null) return;
-  final properties = valueMap['properties'] ?? {};
-  final LatLng position = LatLng(coordinates[1], coordinates[0]);
-  final String tenCau = properties['tenCau'] ?? 'Unknown';
+    final geometry = valueMap['geometry'];
+    if (geometry == null) return;
+    final coordinates = geometry['coordinates'];
+    if (coordinates == null) return;
+    final properties = valueMap['properties'] ?? {};
+    final LatLng position = LatLng(coordinates[1], coordinates[0]);
+    final String tenCau = properties['tenCau'] ?? 'Unknown';
 
-  setState(() {
-    _markers.add(
-      Marker(
-        width: 150.0,
-        height: 50.0,
-        point: position,
-        child: GestureDetector(
-          onTap: () {
-            _showBridgeInfoDialog(properties);
-          },
-          child: Container(
-            width: 300.0,
-            height: 50.0,
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.location_on,
-                  color: Colors.red,
-                  size: 20.0,
-                ),
-                Text(
-                  tenCau,
-                  style: const TextStyle(
-                    fontSize: 16.0,
-                    fontWeight: FontWeight.normal,
-                    color: Colors.black,
+    setState(() {
+      _markers.add(
+        Marker(
+          width: 150.0,
+          height: 50.0,
+          point: position,
+          child: GestureDetector(
+            onTap: () {
+              _showBridgeInfoDialog(properties);
+            },
+            child: Container(
+              width: 300.0,
+              height: 50.0,
+              alignment: Alignment.center,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.location_on,
+                    color: Colors.red,
+                    size: 20.0,
                   ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                  Text(
+                    tenCau,
+                    style: const TextStyle(
+                      fontSize: 16.0,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.black,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
-  });
-}
-void _filterMarkers(String query) {
-  setState(() {
-    _filteredMarkers = _markers.where((marker) {
-      final child = marker.child;
-      if (child is GestureDetector) {
-        final container = child.child;
-        if (container is Container) {
-          final column = container.child;
-          if (column is Column && column.children.length > 1) {
-            final textWidget = column.children[1];
-            if (textWidget is Text && textWidget.data != null) {
-              final properties = _getPropertiesFromMarker(marker);
-              if (properties != null) {
-                final bool shouldShow = _layers[_selectedIndex]['isChecked'] &&
-                    textWidget.data!
-                        .toLowerCase()
-                        .contains(query.toLowerCase());
-                return shouldShow;
+      );
+    });
+  }
+
+  void _filterMarkers(String query) {
+    setState(() {
+      _filteredMarkers = _markers.where((marker) {
+        final child = marker.child;
+        if (child is GestureDetector) {
+          final container = child.child;
+          if (container is Container) {
+            final column = container.child;
+            if (column is Column && column.children.length > 1) {
+              final textWidget = column.children[1];
+              if (textWidget is Text && textWidget.data != null) {
+                final properties = _getPropertiesFromMarker(marker);
+                if (properties != null) {
+                  final bool shouldShow = _layers[_selectedIndex]
+                          ['isChecked'] &&
+                      textWidget.data!
+                          .toLowerCase()
+                          .contains(query.toLowerCase());
+                  return shouldShow;
+                }
               }
             }
           }
         }
-      }
-      return false;
-    }).toList();
-  });
-}
+        return false;
+      }).toList();
+    });
+  }
 
-Map<String, dynamic>? _getPropertiesFromMarker(Marker marker) {
-  final child = marker.child;
-  if (child is GestureDetector) {
-    final container = child.child;
-    if (container is Container) {
-      final column = container.child;
-      if (column is Column && column.children.length > 1) {
-        final textWidget = column.children[1];
-        if (textWidget is Text && textWidget.data != null) {
-          // Trả về thuộc tính từ marker nếu hợp lệ
-          return json.decode(json.encode(textWidget.data));
+  Map<String, dynamic>? _getPropertiesFromMarker(Marker marker) {
+    final child = marker.child;
+    if (child is GestureDetector) {
+      final container = child.child;
+      if (container is Container) {
+        final column = container.child;
+        if (column is Column && column.children.length > 1) {
+          final textWidget = column.children[1];
+          if (textWidget is Text && textWidget.data != null) {
+            // Trả về thuộc tính từ marker nếu hợp lệ
+            return json.decode(json.encode(textWidget.data));
+          }
         }
       }
     }
+    return null;
   }
-  return null;
-}
 
+  void _showBridgeInfoDialog(Map<String, dynamic> properties) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final geometry = properties['geometry'];
+        final coordinates =
+            geometry != null ? geometry['coordinates'] : [null, null];
 
-  
-
- void _showBridgeInfoDialog(Map<String, dynamic> properties) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      final geometry = properties['geometry'];
-      final coordinates = geometry != null ? geometry['coordinates'] : [null, null];
-
-      return AlertDialog(
-        title: Text(
-          properties['tenCau'] ?? 'Unknown',
-          style: const TextStyle(
-            fontSize: 20,
+        return AlertDialog(
+          title: Text(
+            properties['tenCau'] ?? 'Unknown',
+            style: const TextStyle(
+              fontSize: 20,
+            ),
           ),
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text('Lý trình: ${properties['lyTrinh'] ?? 'Unknown'}'),
-              Text('Lộ tuyến: ${properties['lo_tuyen'] ?? 'Unknown'}'),
-              Text('Địa danh: ${properties['diaDanh'] ?? 'Unknown'}'),
-              Text('Chiều dài: ${properties['chieuDai'] ?? 'Unknown'}'),
-              Text('Vĩ độ: ${coordinates != null ? coordinates[1] ?? 'Unknown' : 'Unknown'}'),
-              Text('Kinh độ: ${coordinates != null ? coordinates[0] ?? 'Unknown' : 'Unknown'}'),
-            ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text('Lý trình: ${properties['lyTrinh'] ?? 'Unknown'}'),
+                Text('Lộ tuyến: ${properties['lo_tuyen'] ?? 'Unknown'}'),
+                Text('Địa danh: ${properties['diaDanh'] ?? 'Unknown'}'),
+                Text('Chiều dài: ${properties['chieuDai'] ?? 'Unknown'}'),
+                Text(
+                    'Vĩ độ: ${coordinates != null ? coordinates[1] ?? 'Unknown' : 'Unknown'}'),
+                Text(
+                    'Kinh độ: ${coordinates != null ? coordinates[0] ?? 'Unknown' : 'Unknown'}'),
+              ],
+            ),
           ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Đóng'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => EditBridgeScreen(
-                    fid: properties['fid'],
-                    cau: properties,
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Đóng'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => EditBridgeScreen(
+                      fid: properties['fid'],
+                      cau: properties,
+                    ),
                   ),
-                ),
-              );
-            },
-            child: const Text('Sửa'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-
-
-
+                );
+              },
+              child: const Text('Sửa'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _toggleLayer(int index) {
     setState(() {

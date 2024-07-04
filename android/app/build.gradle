@@ -52,6 +52,16 @@ android {
             signingConfig = signingConfigs.debug
         }
     }
+   
+
+    kotlinOptions {
+        // Cấu hình kotlin options
+    }
+
+    dependencies {
+        implementation 'androidx.multidex:multidex:2.0.1'
+        // Các dependency khác của bạn...
+    }
 }
 
 flutter {
