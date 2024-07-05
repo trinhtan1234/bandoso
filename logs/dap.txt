@@ -1,0 +1,13 @@
+!! ⚠️ PLEASE REVIEW THIS LOG FOR SENSITIVE INFORMATION BEFORE SHARING ⚠️ !!
+Dart Code extension: 3.92.0
+Flutter extension: 3.93.20240702 (not activated)
+
+App: Visual Studio Code
+App Host: desktop
+Version: win 1.91.0
+
+
+Logging Categories:
+    DAP
+
+Fri Jul 05 2024 [15:39:56 GMT+0700 (Indochina Time)] Log file started

@@ -362,7 +362,10 @@ class _BanDoSoState extends State<BanDoSo> {
           case 0:
             return FirebaseDatabase.instance.ref().child('features');
           case 1:
-            return FirebaseDatabase.instance.ref().child('other_layer');
+            return FirebaseDatabase.instance
+                .ref()
+                .child('features')
+                .child('20');
           // Add cases for other layers as needed
           default:
             return FirebaseDatabase.instance.ref().child('default_layer');
