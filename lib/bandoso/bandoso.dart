@@ -17,8 +17,8 @@ class BanDoSo extends StatefulWidget {
 class _BanDoSoState extends State<BanDoSo> {
   final List<Marker> _markers = [];
   List<Marker> _filteredMarkers = [];
-  DatabaseReference _currentLayerRef =
-      FirebaseDatabase.instance.ref().child('features');
+  Query _currentLayerRef = FirebaseDatabase.instance.ref().child('features');
+
   final List<Map<String, dynamic>> _layers = [
     {'name': 'Cầu', 'isChecked': false},
     {'name': 'Cột km', 'isChecked': false},
@@ -355,7 +355,7 @@ class _BanDoSoState extends State<BanDoSo> {
     });
   }
 
-  DatabaseReference _getDatabaseReference(int index) {
+  Query _getDatabaseReference(int index) {
     if (index >= 0 && index < _layers.length) {
       if (_layers[index]['isChecked']) {
         switch (index) {
@@ -366,7 +366,17 @@ class _BanDoSoState extends State<BanDoSo> {
                 .ref()
                 .child('features')
                 .child('20');
-          // Add cases for other layers as needed
+          case 2:
+            return FirebaseDatabase.instance
+                .ref()
+                .child('features')
+                .orderByChild('phanloai')
+                .equalTo('Cột h');
+          case 3:
+            return FirebaseDatabase.instance
+                .ref()
+                .child('features')
+                .child('bienbao');
           default:
             return FirebaseDatabase.instance.ref().child('default_layer');
         }

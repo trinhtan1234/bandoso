@@ -4,7 +4,24 @@
             "outputFile": "com.example.bandoso.app-mergeDebugResources-33:/values-eu/values-eu.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\tantv\\.gradle\\caches\\transforms-3\\115502d1a6e0c8de668c71ce424a72e4\\transformed\\core-1.13.0\\res\\values-eu\\values-eu.xml",
+                    "source": "/Users/macos/.gradle/caches/transforms-3/455b7d0a5dacf78b1176abadc8470675/transformed/jetified-play-services-basement-18.3.0/res/values-eu/values.xml",
+                    "from": {
+                        "startLines": "4",
+                        "startColumns": "0",
+                        "startOffsets": "195",
+                        "endColumns": "138",
+                        "endOffsets": "333"
+                    },
+                    "to": {
+                        "startLines": "17",
+                        "startColumns": "4",
+                        "startOffsets": "1804",
+                        "endColumns": "142",
+                        "endOffsets": "1942"
+                    }
+                },
+                {
+                    "source": "/Users/macos/.gradle/caches/transforms-3/115502d1a6e0c8de668c71ce424a72e4/transformed/core-1.13.0/res/values-eu/values-eu.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",
@@ -21,7 +38,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\tantv\\.gradle\\caches\\transforms-3\\daddaa10b3fa7664526909ddb375a855\\transformed\\jetified-play-services-base-18.3.0\\res\\values-eu\\values.xml",
+                    "source": "/Users/macos/.gradle/caches/transforms-3/daddaa10b3fa7664526909ddb375a855/transformed/jetified-play-services-base-18.3.0/res/values-eu/values.xml",
                     "from": {
                         "startLines": "4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20",
                         "startColumns": "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0",
@@ -35,23 +52,6 @@
                         "startOffsets": "786,890,1062,1186,1295,1447,1572,1696,1947,2125,2233,2396,2524,2678,2838,2904,2969",
                         "endColumns": "103,171,123,108,151,124,123,107,177,107,162,127,153,159,65,64,91",
                         "endOffsets": "885,1057,1181,1290,1442,1567,1691,1799,2120,2228,2391,2519,2673,2833,2899,2964,3056"
-                    }
-                },
-                {
-                    "source": "C:\\Users\\tantv\\.gradle\\caches\\transforms-3\\455b7d0a5dacf78b1176abadc8470675\\transformed\\jetified-play-services-basement-18.3.0\\res\\values-eu\\values.xml",
-                    "from": {
-                        "startLines": "4",
-                        "startColumns": "0",
-                        "startOffsets": "195",
-                        "endColumns": "138",
-                        "endOffsets": "333"
-                    },
-                    "to": {
-                        "startLines": "17",
-                        "startColumns": "4",
-                        "startOffsets": "1804",
-                        "endColumns": "142",
-                        "endOffsets": "1942"
                     }
                 }
             ]
